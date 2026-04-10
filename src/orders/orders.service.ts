@@ -45,8 +45,11 @@ export class OrdersService {
         // Update Stock
         const productToUpdate = await queryRunner.manager.findOne(Product, { where: { id: item.productId } });
         if (productToUpdate) {
-            productToUpdate.stock -= item.quantity;
-            await queryRunner.manager.save(productToUpdate);
+          if (productToUpdate.stock < item.quantity) {
+            throw new Error(`Insufficient stock for product ${productToUpdate.name}. Available: ${productToUpdate.stock}, Requested: ${item.quantity}`);
+          }
+          productToUpdate.stock -= item.quantity;
+          await queryRunner.manager.save(productToUpdate);
         }
       }
 
@@ -78,12 +81,28 @@ export class OrdersService {
     });
   }
 
+  async findOneForUser(id: number, userId: number): Promise<Order | null> {
+    return this.orderRepository.findOne({
+      where: { id, userId },
+      relations: ['user', 'theOrders', 'theOrders.product'],
+    });
+  }
+
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order | null> {
     await this.orderRepository.update(id, updateOrderDto);
     return this.findOne(id);
   }
 
+  async updateForUser(id: number, updateOrderDto: UpdateOrderDto, userId: number): Promise<Order | null> {
+    await this.orderRepository.update({ id, userId }, updateOrderDto);
+    return this.findOneForUser(id, userId);
+  }
+
   async remove(id: number): Promise<void> {
     await this.orderRepository.delete(id);
+  }
+
+  async removeForUser(id: number, userId: number): Promise<void> {
+    await this.orderRepository.delete({ id, userId });
   }
 }

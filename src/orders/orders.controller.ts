@@ -22,18 +22,24 @@ export class OrdersController {
     return this.ordersService.findAllForUser(req.user.sub);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
+  findOne(@Param('id') id: string, @Request() req) {
+    // Only return order if it belongs to the current user
+    return this.ordersService.findOneForUser(+id, req.user.sub);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto, @Request() req) {
+    // Only update order if it belongs to the current user
+    return this.ordersService.updateForUser(+id, updateOrderDto, req.user.sub);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+  remove(@Param('id') id: string, @Request() req) {
+    // Only delete order if it belongs to the current user
+    return this.ordersService.removeForUser(+id, req.user.sub);
   }
 }

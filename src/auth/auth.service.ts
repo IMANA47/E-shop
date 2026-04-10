@@ -57,7 +57,7 @@ export class AuthService {
         text: `Your OTP code is ${otpCode}. It is valid for 15 minutes.`,
       });
     } catch (e) {
-      console.log('⚠️ E-mail non envoyé (Mailtrap non configuré), mais le compte est créé avec son OTP.');
+      console.log('⚠️ E-mail non envoyé (Resend non configuré), mais le compte est créé avec son OTP.');
     }
 
     return { message: 'User registered. Please check email for OTP to activate.' };
@@ -127,7 +127,7 @@ export class AuthService {
         text: `Your password reset OTP code is ${otpCode}. It is valid for 15 minutes.`,
       });
     } catch (e) {
-      console.log('⚠️ E-mail non envoyé, mais l\'OTP de secours a été généré en base.');
+      console.log('⚠️ E-mail non envoyé (Resend non configuré), mais l\'OTP de secours a été généré en base.');
     }
 
     return { message: 'If the email exists, an OTP has been sent.' };

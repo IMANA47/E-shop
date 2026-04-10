@@ -19,18 +19,24 @@ import { AuthModule } from './auth/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MailerModule.forRoot({
-      transport: {
-        host: 'sandbox.smtp.mailtrap.io',
-        port: 2525,
-        auth: {
-           user: 'b1fb9bb7ea08d0',
-           pass: 'bc066e138a0f12'
-        }
-      },
-      defaults: {
-        from: '"No Reply" <noreply@eshop.com>',
-      },
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: 'smtp.resend.com',
+          secure: true,
+          port: 465,
+          auth: {
+            user: 'resend',
+            pass: configService.get<string>('RESEND_API_KEY'),
+          },
+        },
+        defaults: {
+          // Important: Resend free tier requires sending from onboarding@resend.dev
+          from: '"E-Shop OTP" <onboarding@resend.dev>',
+        },
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
